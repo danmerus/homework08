@@ -17,11 +17,22 @@ trait PeopleModule {
   }
 
   def setup(uri: String): Unit = {
+    val persons = (Person("Alice", LocalDate.of(1970, 1, 1)),
+      Person("Bob", LocalDate.of(1981, 5, 12)),
+      Person("Charlie", LocalDate.of(1979, 2, 20)))
     DBRes.update("DROP TABLE people", List.empty).execute(uri)
     DBRes.update("CREATE TABLE people(name VARCHAR(256), birthday DATE)", List.empty).execute(uri)
-
-    storePerson(Person("Alice", LocalDate.of(1970, 1, 1))).execute(uri)
-    storePerson(Person("Bob", LocalDate.of(1981, 5, 12))).execute(uri)
-    storePerson(Person("Charlie", LocalDate.of(1979, 2, 20))).execute(uri)
+    for {
+      k <- persons
+      out <- storePerson(k)
+    }
+      yield out
+      out.execute(uri)
+//    DBRes.update("DROP TABLE people", List.empty).execute(uri)
+//    DBRes.update("CREATE TABLE people(name VARCHAR(256), birthday DATE)", List.empty).execute(uri)
+//
+//    storePerson(Person("Alice", LocalDate.of(1970, 1, 1))).execute(uri)
+//    storePerson(Person("Bob", LocalDate.of(1981, 5, 12))).execute(uri)
+//    storePerson(Person("Charlie", LocalDate.of(1979, 2, 20))).execute(uri)
   }
 }
