@@ -24,8 +24,7 @@ object PeopleApp extends PeopleModule {
   }
 
   def main(args: Array[String]): Unit = {
-    setup(uri)
-
+    setup.execute(uri)
     val old = getOldPerson()
     val clone = clonePerson(old)
 
