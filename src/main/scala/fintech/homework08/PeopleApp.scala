@@ -24,10 +24,18 @@ object PeopleApp extends PeopleModule {
   }
 
   def main(args: Array[String]): Unit = {
-    setup.execute(uri)
-    val old = getOldPerson()
-    val clone = clonePerson(old)
 
-    println(clone)
+    val program = for {
+      _ <- DBRes.update("DROP TABLE people", List.empty)
+      _ <- DBRes.update("CREATE TABLE people(name VARCHAR(256), birthday DATE)", List.empty)
+      _ <- storePerson(Person("Alice", LocalDate.of(1970, 1, 1)))
+      _ <- storePerson(Person("Bob", LocalDate.of(1981, 5, 12)))
+      _ <- storePerson(Person("Charlie", LocalDate.of(1979, 2, 20)))
+      person <- DBRes.select("SELECT * FROM people WHERE birthday < ?", List(LocalDate.of(1979, 2, 20)))(readPerson)
+      clone <- storePerson(Person(person.head.name, birthday = LocalDate.now()))
+    } yield person
+
+     val person = program.execute(uri).head
+      println(person)
   }
 }
