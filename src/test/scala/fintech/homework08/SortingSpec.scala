@@ -1,4 +1,5 @@
 package fintech.homework08
+import java.sql.DriverManager
 import java.time.LocalDate
 
 import fintech.homework08.PeopleApp.{readPerson, uri}
@@ -19,15 +20,28 @@ class SortingSpec extends FlatSpec with Matchers {
     res.length shouldEqual 2
   }
 
-//  it should "flatMap correctly 2" in {
-//    var calls1 = 0
-//    val dbres1 = DBRes(_ => calls1 += 1)
-//    val composed = for {
-//     // q <- dbres1.run(uri)
-//      //q <- dbres1.run(DriverManager.getConnection(uri))
-//    } yield ()
-//    println(calls1)
-//  }
+  it should "flatMap correctly 2" in {
+    var calls1 = 0
+    val dbres1 = DBRes(_ => calls1 += 1)
+    val conn = DriverManager.getConnection(uri)
+    val composed = for {
+      q <- dbres1
+      q <- dbres1
+    } yield q
+    composed.run(conn)
+    calls1 shouldEqual 2
+  }
+
+  it should "Map correctly 2" in {
+    var calls1 = 0
+    val dbres1 = DBRes(_ => calls1 += 1)
+    val conn = DriverManager.getConnection(uri)
+    val composed = for {
+      q <- dbres1
+    } yield q
+    composed.run(conn)
+    calls1 shouldEqual 1
+  }
 
 
 }
